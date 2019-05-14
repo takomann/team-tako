@@ -48,3 +48,19 @@ def draw_contours(ax, img, contours):
         # ax.plot(cnt[:, 0], cnt[:, 1], 'ro', mew=0, ms=4)
         # 輪郭の番号を描画する。
         # ax.text(cnt[0][0], cnt[0][1], i, color='orange', size='20')
+
+#　領域の回転＋切り出し
+def rot_cut(src_img, deg, center, size):
+    rot_mat = cv2.getRotationMatrix2D(center, deg, 1.0)
+    rot_mat[0][2] += -center[0]+size[0]/2 # -(元画像内での中心位置)+(切り抜きたいサイズの中心)
+    rot_mat[1][2] += -center[1]+size[1]/2 # 同上
+    return cv2.warpAffine(src_img, rot_mat, size)
+
+#元画像全体を回転させてから切り出す
+def cut_after_rot(src_img, deg, center, size):
+    rot_mat = cv2.getRotationMatrix2D(center, deg, 1.0)
+    src_h,src_w,_ = src_img.shape
+    rot_img = cv2.warpAffine(src_img, rot_mat, (src_w,src_h))
+    #スライスによって領域を切り出す
+    return rot_img[center[1]-size[1]//2:center[1]+size[1]//2, \
+                   center[0]-size[0]//2:center[0]+size[0]//2, :]
